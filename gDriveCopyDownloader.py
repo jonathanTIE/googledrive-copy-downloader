@@ -36,8 +36,6 @@ def get_location():
     return otherPath
 
 
-drive = GoogleAuthManager.create_drive_manager()
-get_location()  # ask for path if not set
 print(" Some infos : \n"
       "You can put the links directly from google drive ('https://drive.google.com') but also those behind a "
       "redirection(like the one from igg).\n"
@@ -45,7 +43,14 @@ print(" Some infos : \n"
       "after the downloads. \n"
       "The download percentage status is updated about every 100 MB, so wait a little if it appears to be stuck.\n"
       "You can put multiple links at the same time\n")
-print("")
+print("###############")
+print("\n Careful, if you choose to save the credentials : "
+      " An access to your google drive will be/is stored on 'credentials.txt'. \n IT COULD BE USED BY SOMEONE ELSE"
+      " TO ACCESS, DOWNLOAD OR DELETE FILES FROM YOUR GOOGLE DRIVE. \n I'm not responsible if anything bad happen"
+      " in your drive.\n")
+print("###############")
+drive = GoogleAuthManager.create_drive_manager()
+get_location()  # ask for path if not set
 
 while 1:
     links = input("paste the link(s) to download : \n")

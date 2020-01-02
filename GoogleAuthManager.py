@@ -1,39 +1,36 @@
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
+from os import path
 
 
-def create_credential(typeOfAuth):
-    if typeOfAuth == 1:
-        from GoogleAuthV1 import auth_and_save_credential
-    if typeOfAuth == 2:
-        from GoogleAuthV2 import auth_and_save_credential
+def create_credential():
+    from GoogleAuthV1 import auth_and_save_credential
     auth_and_save_credential()
 
 
 # Authentication + token creation
-def create_drive_manager():  # TODO Use GoogleAuthV4
+def create_drive_manager():
     gAuth = GoogleAuth()
-    try:
-        authorize_from_credential(gAuth)
-    except:
-        typeOfAuth = 0  # selection of method of auth
-        while typeOfAuth != 1 and typeOfAuth != 2:
-            typeOfAuth = int(input("type 1 for method 1, type 2 for method 2"))
-            print(typeOfAuth)
-            print("bbb")
-        print("aaaaa")
-        create_credential(typeOfAuth)
-        authorize_from_credential(gAuth)
-
+    typeOfAuth = None
+    if not path.exists("credentials.txt"):
+        typeOfAuth = input("type save if you want to keep a credential file, else type nothing")
+    bool = True if typeOfAuth == "save" or path.exists("credentials.txt") else False
+    authorize_from_credential(gAuth, bool)
     drive: GoogleDrive = GoogleDrive(gAuth)
     return drive
 
 
-def authorize_from_credential(gAuth):
-    gAuth.LoadCredentialsFile("credentials.txt")  # TODO : faire un os.system.exist
-    if gAuth.access_token_expired:
+def authorize_from_credential(gAuth, isSaved):
+    if not isSaved: #no credential.txt wanted
+        from GoogleAuthV1 import auth_no_save
+        auth_no_save(gAuth)
+    if isSaved and not path.exists("credentials.txt"):
+        create_credential()
+        gAuth.LoadCredentialsFile("credentials.txt")
+    if isSaved and gAuth.access_token_expired:
+        gAuth.LoadCredentialsFile("credentials.txt")
         gAuth.Refresh()
-        print("token refreshed !")
+        print("token refreshed!")
         gAuth.SaveCredentialsFile("credentials.txt")
     gAuth.Authorize()
-    print("authorized !")
+    print("authorized access to google drive API!")
