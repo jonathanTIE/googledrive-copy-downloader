@@ -24,22 +24,35 @@ def get_Gdrive_folder_id(drive, driveService, name):  # return ID of folder, cre
             }
     query = "title='Temp folder for script' and mimeType='application/vnd.google-apps.folder'" \
             " and 'root' in parents and trashed=false"
-    listFolders = drive.ListFile({'q' : query})
+    listFolders = drive.ListFile({'q': query})
     for subList in listFolders:
-        if subList == []: #if folder doesn't exist, create it
+        if subList == []:  # if folder doesn't exist, create it
             folder = driveService.files().insert(body=body).execute()
             break
         else:
-            folder = subList[0] #if one folder with the correct name exist, pick it
+            folder = subList[0]  # if one folder with the correct name exist, pick it
 
     return folder['id']
 
 
+def extract_file_ids_from_folder(drive, folderID):
+    files = drive.ListFile({'q': "'" + folderID + "' in parents"}).GetList()
+    fileIDs = []
+    for file in files :
+        fileIDs.append(file['id'])
+    return fileIDs
+
+
 def extract_files_id(links, drive):
     # copy of google drive file from google drive link :
-    links = re.findall(r"\b(?:https?:\/\/)?(?:drive\.google\.com[-_?=a-zA-Z\/\d]+)", links)  # extract google drive links
+    links = re.findall(r"\b(?:https?:\/\/)?(?:drive\.google\.com[-_?=a-zA-Z\/\d]+)",
+                       links)  # extract google drive links
     try:
-        fileIDs = [re.search(r"(?<=/d/|id=).+?(?=/|$)", link)[0] for link in links]  # extract the fileIDs
+        fileIDs = [re.search(r"(?<=/d/|id=|rs/).+?(?=/|$)", link)[0] for link in links]  # extract the fileIDs
+        for fileID in fileIDs:
+            if drive.auth.service.files().get(fileId=fileID).execute()['mimeType'] == "application/vnd.google-apps.folder":
+                fileIDs.extend(extract_file_ids_from_folder(drive, fileID))
+                fileIDs.remove(fileID)
         return fileIDs
     except Exception as error:
         print("error : " + str(error))
@@ -71,11 +84,10 @@ def download_file(drive, file, destFolder):
     print("download in progress...")
     while done is False:
         status, done = downloader.next_chunk()
-        print("\rDownload %d%%"% int(status.progress() * 100), end="")
+        print("\rDownload %d%%" % int(status.progress() * 100), end="")
     file.close()
     print("\ndownload completed : " + newFileName)
 
 
 def delete_file(drive, id):
     drive.auth.service.files().delete(fileId=id).execute()
-
