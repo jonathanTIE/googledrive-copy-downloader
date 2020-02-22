@@ -73,10 +73,11 @@ def copy_file(drive, id):
 def download_file(drive, file, destFolder):
     copiedFileMedia = drive.auth.service.files().get_media(fileId=file['id'])
     newFileName = file['title']
+    print("download in progress. File size : " + sizeof_file(int(file['fileSize'])))
     file = open(destFolder + "\\" + newFileName, "wb+")
     downloader = MediaIoBaseDownload(file, copiedFileMedia, chunksize=104857600)  # change chunksize here
     done = False
-    print("download in progress...")
+
     while done is False:
         status, done = downloader.next_chunk()
         print("\rDownload %d%%" % int(status.progress() * 100), end="")
@@ -86,3 +87,14 @@ def download_file(drive, file, destFolder):
 
 def delete_file(drive, id):
     drive.auth.service.files().delete(fileId=id).execute()
+
+#https://stackoverflow.com/questions/1094841/reusable-library-to-get-human-readable-version-of-file-size
+def sizeof_file(num, suffix='B'):
+    for unit in ['','K','M','G','Ti','Pi','Ei','Zi']:
+        if abs(num) < 1024.0:
+            return "%3.1f%s%s" % (num, unit, suffix)
+        num /= 1024.0
+    return "%.1f%s%s" % (num, 'Yi', suffix)
+
+if __name__ == '__main__':
+    sizeof_file((31000))
