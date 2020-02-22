@@ -1,12 +1,6 @@
-# secondary TODO : extract link from bluemedia (igg-games)   (extract hyperlink from hypertext)
-
-# todo check if credentials is in the right folder(separate google auth and main)
-
 """
 Documentation :
-explain what this program does
 explain client secret(how to replace it if needed) : https://developers.google.com/drive/api/v3/quickstart/python
-directory : explain
 download : the ile is chucked with pieces of ~100MB, need to download at least this amount beore appearing on screen
 """
 import re
@@ -64,7 +58,8 @@ def copy_file(drive, id):
     fileOriginMetaData = drive.auth.service.files().get(fileId=id).execute()
     """remove 4 last characters of the original file name 
     and add file extension(should be .rar) in case the file extension is missing from the name """
-    newFileName = fileOriginMetaData['originalFilename'][:-4] + "." + fileOriginMetaData['fileExtension']
+    nameNoExtension = ".".join(fileOriginMetaData['originalFilename'].split(".")[:-1])
+    newFileName = nameNoExtension + "." + fileOriginMetaData['fileExtension']
     print("name of the file on your google drive and on the disk: " + newFileName)
     folderID = get_Gdrive_folder_id(drive, drive.auth.service, "Temp folder for script")
     copiedFileMetaData = {"parents": [{"id": str(folderID)}], 'title': newFileName}  # ID of destination folder
