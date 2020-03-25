@@ -4,7 +4,7 @@ explain client secret(how to replace it if needed) : https://developers.google.c
 download : the ile is chucked with pieces of ~100MB, need to download at least this amount beore appearing on screen
 """
 import re
-
+import os
 from googleapiclient.http import MediaIoBaseDownload
 
 
@@ -73,8 +73,12 @@ def copy_file(drive, id):
 def download_file(drive, file, destFolder):
     copiedFileMedia = drive.auth.service.files().get_media(fileId=file['id'])
     newFileName = file['title']
+    defaultPath = destFolder + "\\" + newFileName
+    fullPath = generate_path_with_unique_filename(destFolder, newFileName)
+    if defaultPath != fullPath :
+        print("file already exist in the disk, new path : " + fullPath)
     print("download in progress. File size : " + sizeof_file(int(file['fileSize'])))
-    file = open(destFolder + "\\" + newFileName, "wb+")
+    file = open(fullPath, "wb+")
     downloader = MediaIoBaseDownload(file, copiedFileMedia, chunksize=104857600)  # change chunksize here
     done = False
 
@@ -96,5 +100,13 @@ def sizeof_file(num, suffix='B'):
         num /= 1024.0
     return "%.1f%s%s" % (num, 'Yi', suffix)
 
-if __name__ == '__main__':
-    sizeof_file((31000))
+def generate_path_with_unique_filename(folder, filename):
+    fullpath = folder + "\\" + filename
+    if not os.path.exists(fullpath):
+        return fullpath
+    fileNumber = 1
+    while(os.path.exists(fullpath)):
+        fullpath = folder + "\\" + str(fileNumber) + filename
+        fileNumber+=1
+    return fullpath
+
