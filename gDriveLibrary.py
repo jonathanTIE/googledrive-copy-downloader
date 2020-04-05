@@ -13,12 +13,12 @@ from tqdm import tqdm
 # https://stackoverflow.com/questions/35851281/python-finding-the-users-downloads-folder
 
 
-def get_Gdrive_folder_id(drive, driveService, name):  # return ID of folder, create it if missing
+def get_Gdrive_folder_id(drive, driveService, name, parent="root"):  # return ID of folder, create it if missing
     body = {'title': name,
             'mimeType': "application/vnd.google-apps.folder"
             }
     query = "title='Temp folder for script' and mimeType='application/vnd.google-apps.folder'" \
-            " and 'root' in parents and trashed=false"
+            " and '" + parent + "' in parents and trashed=false"
     listFolders = drive.ListFile({'q': query})
     for subList in listFolders:
         if subList == []:  # if folder doesn't exist, create it
@@ -55,17 +55,17 @@ def extract_files_id(links, drive):
         print(links)
 
 
-def copy_file(drive, id):
-    fileOriginMetaData = drive.auth.service.files().get(fileId=id).execute()
+def copy_file(drive, fileId, parentFolder = "root"): #if different parentFolder, input the folder ID
+    fileOriginMetaData = drive.auth.service.files().get(fileId=fileId).execute()
     """remove 4 last characters of the original file name 
     and add file extension(should be .rar) in case the file extension is missing from the name """
     nameNoExtension = ".".join(fileOriginMetaData['originalFilename'].split(".")[:-1])
     newFileName = nameNoExtension + "." + fileOriginMetaData['fileExtension']
     print("Name of the file on your google drive and on the disk: " + newFileName)
-    folderID = get_Gdrive_folder_id(drive, drive.auth.service, "Temp folder for script")
+    folderID = get_Gdrive_folder_id(drive, drive.auth.service, "Temp folder for script", parentFolder)
     copiedFileMetaData = {"parents": [{"id": str(folderID)}], 'title': newFileName}  # ID of destination folder
     copiedFile = drive.auth.service.files().copy(
-        fileId=id,
+        fileId=fileId,
         body=copiedFileMetaData
     ).execute()
     return copiedFile
