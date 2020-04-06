@@ -65,14 +65,21 @@ async def Check_clipboard_links(drive): #Only works for windows
     else:
         raise OSError("os isn't windows !")
     CF_HTML = win32clipboard.RegisterClipboardFormat("HTML Format")
+    cacheClipboard = ""
     while 1:
-        win32clipboard.OpenClipboard(0)
-        src = win32clipboard.GetClipboardData(CF_HTML)
-        win32clipboard.CloseClipboard()
-        src = src.decode("UTF-8")
-        Copy_dwnld_from_links(src, drive)
-
         await asyncio.sleep(1)
+        win32clipboard.OpenClipboard(0)
+        try:
+            src = win32clipboard.GetClipboardData(CF_HTML).decode("UTF-8")
+        except TypeError:#if not html
+            try:
+                src = win32clipboard.GetClipboardData(win32clipboard.CF_TEXT).decode("UTF-8")
+            except TypeError:
+                src = ""
+        win32clipboard.CloseClipboard()
+        if(src != cacheClipboard): #avoid downloading infinite loop if still in clipboard
+            cacheClipboard = src
+            Copy_dwnld_from_links(src, drive)
 
 print(" Some infos : \n"
       "You can put the links directly from google drive ('https://drive.google.com') but also those behind a "
@@ -80,8 +87,8 @@ print(" Some infos : \n"
       "Temporary files in google drive of your download will be stored on 'Temp folder for script', you can delete it "
       "after the downloads. \n"
       "Settings are stored in the config.ini file.\n"
-      "If you want to put the google drive folder in a custom folder(for example if you want to use a team drive), "
-      "edit the FolderId field in config.ini and replace 'root' with the google drive folder id. \n"
+      "If you want to put the google drive folder in a custom folder(to use your google team account), "
+      "edit the FolderId field in config.ini and replace 'root' with the google drive team folder id.\n"
       "If you use Windows, you can go on config.ini and change ClipboardDetection to ClipboardDetection=1,"
       "you just have to Ctrl+C the links to download and it should handle the rest.\n"
       "The download percentage status is updated about every 100 MB, so wait a little if it appears to be stuck.\n"

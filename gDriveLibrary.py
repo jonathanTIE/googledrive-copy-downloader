@@ -19,6 +19,8 @@ def get_Gdrive_folder_id(drive, driveService, name, parent="root"):  # return ID
             }
     query = "title='Temp folder for script' and mimeType='application/vnd.google-apps.folder'" \
             " and '" + parent + "' in parents and trashed=false"
+    if parent != "root":
+        query += "and driveId='" + parent + "' and includeItemsFromAllDrives=true and supportsAllDrives = true"
     listFolders = drive.ListFile({'q': query})
     for subList in listFolders:
         if subList == []:  # if folder doesn't exist, create it
