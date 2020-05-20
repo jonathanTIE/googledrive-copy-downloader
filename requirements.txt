@@ -18,7 +18,7 @@ google-api-python-client==1.7.11
 google-auth==1.10.0
 google-auth-httplib2==0.0.3
 greenlet==0.4.15
-httplib2==0.15.0
+httplib2==0.18.0
 idna==2.8
 itsdangerous==1.1.0
 Jinja2==2.10.3
