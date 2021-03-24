@@ -37,7 +37,7 @@ pywin32==227
 pywin32-ctypes==0.2.0
 PyYAML==5.2
 requests==2.22.0
-rsa==4.0
+rsa==4.1
 six==1.13.0
 tqdm==4.43.0
 uritemplate==3.0.1
