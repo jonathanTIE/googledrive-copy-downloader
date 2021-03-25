@@ -35,7 +35,7 @@ PyInstaller==3.6
 pyOpenSSL==19.1.0
 pywin32==227
 pywin32-ctypes==0.2.0
-PyYAML==5.2
+PyYAML==5.4
 requests==2.22.0
 rsa==4.0
 six==1.13.0
