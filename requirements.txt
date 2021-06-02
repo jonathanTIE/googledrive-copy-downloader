@@ -41,6 +41,6 @@ rsa==4.0
 six==1.13.0
 tqdm==4.43.0
 uritemplate==3.0.1
-urllib3==1.25.7
+urllib3==1.26.5
 Werkzeug==0.16.0
 whichcraft==0.6.1
